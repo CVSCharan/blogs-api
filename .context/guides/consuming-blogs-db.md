@@ -68,13 +68,13 @@ NODE_ENV="development"
 **PostgreSQL (Neon, Supabase, etc.):**
 
 ```bash
-DATABASE_URL="postgresql://user:password@host.region.provider.com:5432/blogs_db?sslmode=require"
+DATABASE_URL="postgresql://<username>:<password>@host.region.provider.com:5432/blogs_db?sslmode=require"
 ```
 
 **MongoDB (Atlas, MongoDB Cloud):**
 
 ```bash
-MONGODB_URI="mongodb+srv://user:password@cluster.mongodb.net/blogs_db?retryWrites=true&w=majority"
+MONGODB_URI="mongodb+srv://<username>:<password>@cluster.mongodb.net/blogs_db?retryWrites=true&w=majority"
 ```
 
 ---
@@ -86,22 +86,22 @@ MONGODB_URI="mongodb+srv://user:password@cluster.mongodb.net/blogs_db?retryWrite
 #### Basic CRUD Operations
 
 ```typescript
-import { getPrismaClient, PostStatus, UserRole } from '@cvscharan/blogs-db';
+import { getPrismaClient, PostStatus, UserRole } from "@cvscharan/blogs-db";
 
 const prisma = getPrismaClient();
 
 // Create a user
 const user = await prisma.user.create({
   data: {
-    email: 'user@example.com',
-    username: 'johndoe',
+    email: "user@example.com",
+    username: "johndoe",
     passwordHash: hashedPassword,
     role: UserRole.AUTHOR,
     profile: {
       create: {
-        firstName: 'John',
-        lastName: 'Doe',
-        displayName: 'John Doe',
+        firstName: "John",
+        lastName: "Doe",
+        displayName: "John Doe",
       },
     },
   },
@@ -112,17 +112,17 @@ const user = await prisma.user.create({
 
 // Find user by email
 const user = await prisma.user.findUnique({
-  where: { email: 'user@example.com' },
+  where: { email: "user@example.com" },
   include: { profile: true },
 });
 
 // Create a blog post
 const post = await prisma.post.create({
   data: {
-    title: 'My First Post',
-    slug: 'my-first-post',
-    content: 'Post content here...',
-    excerpt: 'Short description',
+    title: "My First Post",
+    slug: "my-first-post",
+    content: "Post content here...",
+    excerpt: "Short description",
     authorId: user.id,
     status: PostStatus.PUBLISHED,
     publishedAt: new Date(),
@@ -133,7 +133,7 @@ const post = await prisma.post.create({
 const posts = await prisma.post.findMany({
   where: {
     status: PostStatus.PUBLISHED,
-    visibility: 'PUBLIC',
+    visibility: "PUBLIC",
   },
   include: {
     categories: {
@@ -148,7 +148,7 @@ const posts = await prisma.post.findMany({
     },
   },
   orderBy: {
-    publishedAt: 'desc',
+    publishedAt: "desc",
   },
   take: 10,
 });
@@ -177,8 +177,8 @@ await prisma.user.delete({
 const searchResults = await prisma.post.findMany({
   where: {
     OR: [
-      { title: { contains: searchTerm, mode: 'insensitive' } },
-      { content: { contains: searchTerm, mode: 'insensitive' } },
+      { title: { contains: searchTerm, mode: "insensitive" } },
+      { content: { contains: searchTerm, mode: "insensitive" } },
     ],
     status: PostStatus.PUBLISHED,
   },
@@ -196,11 +196,11 @@ const stats = await prisma.post.aggregate({
 
 // Group by
 const postsByCategory = await prisma.postCategory.groupBy({
-  by: ['categoryId'],
+  by: ["categoryId"],
   _count: true,
   orderBy: {
     _count: {
-      categoryId: 'desc',
+      categoryId: "desc",
     },
   },
 });
@@ -211,13 +211,13 @@ const postsByCategory = await prisma.postCategory.groupBy({
 #### Connect to MongoDB
 
 ```typescript
-import { connectMongoDB, disconnectMongoDB } from '@cvscharan/blogs-db';
+import { connectMongoDB, disconnectMongoDB } from "@cvscharan/blogs-db";
 
 // Connect on app startup
 await connectMongoDB();
 
 // Disconnect on shutdown
-process.on('SIGTERM', async () => {
+process.on("SIGTERM", async () => {
   await disconnectMongoDB();
   process.exit(0);
 });
@@ -226,29 +226,29 @@ process.on('SIGTERM', async () => {
 #### Track Page Views
 
 ```typescript
-import { PageViewModel } from '@cvscharan/blogs-db';
+import { PageViewModel } from "@cvscharan/blogs-db";
 
 // Create page view
 await PageViewModel.create({
-  postId: 'post-123',
-  postSlug: 'my-first-post',
-  userId: 'user-456', // optional
-  sessionId: 'session-abc',
+  postId: "post-123",
+  postSlug: "my-first-post",
+  userId: "user-456", // optional
+  sessionId: "session-abc",
   ipAddress: req.ip,
-  userAgent: req.headers['user-agent'],
+  userAgent: req.headers["user-agent"],
   device: {
-    type: 'desktop',
-    os: 'macOS',
-    browser: 'Chrome',
+    type: "desktop",
+    os: "macOS",
+    browser: "Chrome",
   },
-  source: 'google',
+  source: "google",
   referrer: req.headers.referer,
   timestamp: new Date(),
 });
 
 // Query page views
 const views = await PageViewModel.find({
-  postId: 'post-123',
+  postId: "post-123",
   timestamp: {
     $gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
   },
@@ -258,35 +258,35 @@ const views = await PageViewModel.find({
 #### Send Notifications
 
 ```typescript
-import { NotificationModel } from '@cvscharan/blogs-db';
+import { NotificationModel } from "@cvscharan/blogs-db";
 
 // Create notification
 await NotificationModel.create({
-  userId: 'user-123',
-  type: 'NEW_COMMENT',
-  title: 'New comment on your post',
+  userId: "user-123",
+  type: "NEW_COMMENT",
+  title: "New comment on your post",
   message: 'John Doe commented on "My First Post"',
-  actionUrl: '/posts/my-first-post#comments',
-  actionText: 'View Comment',
+  actionUrl: "/posts/my-first-post#comments",
+  actionText: "View Comment",
   relatedEntity: {
-    id: 'comment-456',
-    type: 'comment',
+    id: "comment-456",
+    type: "comment",
   },
-  actorId: 'user-789',
-  actorName: 'John Doe',
+  actorId: "user-789",
+  actorName: "John Doe",
   channels: {
     inApp: { enabled: true, read: false },
     email: { enabled: true, sent: false },
     push: { enabled: false, sent: false },
   },
-  priority: 'medium',
+  priority: "medium",
   createdAt: new Date(),
 });
 
 // Get unread notifications
 const unread = await NotificationModel.find({
-  userId: 'user-123',
-  'channels.inApp.read': false,
+  userId: "user-123",
+  "channels.inApp.read": false,
 })
   .sort({ createdAt: -1 })
   .limit(20);
@@ -296,8 +296,8 @@ await NotificationModel.updateOne(
   { _id: notificationId },
   {
     $set: {
-      'channels.inApp.read': true,
-      'channels.inApp.readAt': new Date(),
+      "channels.inApp.read": true,
+      "channels.inApp.readAt": new Date(),
     },
   }
 );
@@ -306,31 +306,31 @@ await NotificationModel.updateOne(
 #### Audit Logging
 
 ```typescript
-import { AuditLogModel } from '@cvscharan/blogs-db';
+import { AuditLogModel } from "@cvscharan/blogs-db";
 
 // Log user action
 await AuditLogModel.create({
   userId: req.user.id,
   userEmail: req.user.email,
   userRole: req.user.role,
-  action: 'UPDATE_POST',
-  resource: 'post',
+  action: "UPDATE_POST",
+  resource: "post",
   resourceId: postId,
   changes: {
-    before: { title: 'Old Title' },
-    after: { title: 'New Title' },
+    before: { title: "Old Title" },
+    after: { title: "New Title" },
   },
   ipAddress: req.ip,
-  userAgent: req.headers['user-agent'],
+  userAgent: req.headers["user-agent"],
   method: req.method,
   endpoint: req.path,
-  status: 'success',
+  status: "success",
   timestamp: new Date(),
 });
 
 // Query audit logs
 const logs = await AuditLogModel.find({
-  userId: 'user-123',
+  userId: "user-123",
   timestamp: {
     $gte: startDate,
     $lte: endDate,
@@ -350,7 +350,7 @@ const logs = await AuditLogModel.find({
 
 ```typescript
 // src/infrastructure/database/prisma.service.ts
-import { getPrismaClient, disconnectPrisma } from '@cvscharan/blogs-db';
+import { getPrismaClient, disconnectPrisma } from "@cvscharan/blogs-db";
 
 export class DatabaseService {
   public prisma = getPrismaClient();
@@ -361,8 +361,8 @@ export class DatabaseService {
 }
 
 // src/repositories/user.repository.ts
-import { UserRole } from '@cvscharan/blogs-db';
-import { DatabaseService } from '../infrastructure/database/prisma.service';
+import { UserRole } from "@cvscharan/blogs-db";
+import { DatabaseService } from "../infrastructure/database/prisma.service";
 
 export class UserRepository {
   constructor(private db: DatabaseService) {}
@@ -423,7 +423,7 @@ import {
   connectMongoDB,
   disconnectPrisma,
   disconnectMongoDB,
-} from '@cvscharan/blogs-db';
+} from "@cvscharan/blogs-db";
 
 export class DatabaseModule {
   public prisma = getPrismaClient();
@@ -439,8 +439,8 @@ export class DatabaseModule {
 }
 
 // src/repositories/post.repository.ts
-import { PostStatus, PostVisibility } from '@cvscharan/blogs-db';
-import { DatabaseModule } from '../infrastructure/database/database.module';
+import { PostStatus, PostVisibility } from "@cvscharan/blogs-db";
+import { DatabaseModule } from "../infrastructure/database/database.module";
 
 export class PostRepository {
   constructor(private db: DatabaseModule) {}
@@ -462,7 +462,7 @@ export class PostRepository {
             include: { tag: true },
           },
         },
-        orderBy: { publishedAt: 'desc' },
+        orderBy: { publishedAt: "desc" },
         skip,
         take: limit,
       }),
@@ -496,8 +496,8 @@ export class PostRepository {
           include: { tag: true },
         },
         comments: {
-          where: { status: 'APPROVED' },
-          orderBy: { createdAt: 'desc' },
+          where: { status: "APPROVED" },
+          orderBy: { createdAt: "desc" },
         },
       },
     });
@@ -514,7 +514,7 @@ export class PostRepository {
 }
 
 // src/services/analytics.service.ts
-import { PageViewModel } from '@cvscharan/blogs-db';
+import { PageViewModel } from "@cvscharan/blogs-db";
 
 export class AnalyticsService {
   async trackPageView(data: PageViewData) {
@@ -548,7 +548,7 @@ export class AnalyticsService {
 
 ```typescript
 // src/repositories/notification.repository.ts
-import { NotificationModel } from '@cvscharan/blogs-db';
+import { NotificationModel } from "@cvscharan/blogs-db";
 
 export class NotificationRepository {
   async createNotification(data: CreateNotificationDto) {
@@ -563,13 +563,15 @@ export class NotificationRepository {
         email: { enabled: data.sendEmail, sent: false },
         push: { enabled: data.sendPush, sent: false },
       },
-      priority: data.priority || 'medium',
+      priority: data.priority || "medium",
       createdAt: new Date(),
     });
   }
 
   async getUserNotifications(userId: string, limit: number = 20) {
-    return await NotificationModel.find({ userId }).sort({ createdAt: -1 }).limit(limit);
+    return await NotificationModel.find({ userId })
+      .sort({ createdAt: -1 })
+      .limit(limit);
   }
 
   async markAsRead(notificationId: string) {
@@ -577,8 +579,8 @@ export class NotificationRepository {
       { _id: notificationId },
       {
         $set: {
-          'channels.inApp.read': true,
-          'channels.inApp.readAt': new Date(),
+          "channels.inApp.read": true,
+          "channels.inApp.readAt": new Date(),
         },
       }
     );
@@ -587,7 +589,7 @@ export class NotificationRepository {
   async getUnreadCount(userId: string) {
     return await NotificationModel.countDocuments({
       userId,
-      'channels.inApp.read': false,
+      "channels.inApp.read": false,
     });
   }
 }
@@ -612,7 +614,7 @@ async function bootstrap() {
 }
 
 // Graceful shutdown
-process.on('SIGTERM', async () => {
+process.on("SIGTERM", async () => {
   await disconnectPrisma();
   await disconnectMongoDB();
   process.exit(0);
@@ -635,9 +637,9 @@ function badExample() {
 try {
   const user = await prisma.user.create({ data });
 } catch (error) {
-  if (error.code === 'P2002') {
+  if (error.code === "P2002") {
     // Unique constraint violation
-    throw new ConflictException('Email already exists');
+    throw new ConflictException("Email already exists");
   }
   throw error;
 }
@@ -659,7 +661,7 @@ const result = await prisma.$transaction(async (tx) => {
 ### 5.4 Type Safety
 
 ```typescript
-import type { User, Post, Prisma } from '@cvscharan/blogs-db';
+import type { User, Post, Prisma } from "@cvscharan/blogs-db";
 
 // Use generated types
 type UserWithProfile = Prisma.UserGetPayload<{
@@ -767,9 +769,9 @@ export const mockPrisma = {
   },
 };
 
-jest.mock('@cvscharan/blogs-db', () => ({
+jest.mock("@cvscharan/blogs-db", () => ({
   getPrismaClient: () => mockPrisma,
-  UserRole: { READER: 'READER', AUTHOR: 'AUTHOR' },
+  UserRole: { READER: "READER", AUTHOR: "AUTHOR" },
 }));
 ```
 
@@ -777,7 +779,7 @@ jest.mock('@cvscharan/blogs-db', () => ({
 
 ```typescript
 // Use mongodb-memory-server for integration tests
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { MongoMemoryServer } from "mongodb-memory-server";
 
 let mongoServer: MongoMemoryServer;
 

@@ -23,39 +23,45 @@ This document tracks the progress of the `blogs-api` microservice setup against 
 
 ### 2. Project Structure & Core Files
 
-- [x] **src/app.ts**: Express app setup with middleware (cors, helmet).
+- [x] **src/app.ts**: Express app setup with middleware (cors, helmet) and Swagger UI.
 - [x] **src/server.ts**: Server entry point.
 - [x] **src/index.ts**: Main entry point.
 - [x] **src/config/env.config.ts**: Environment validation with Zod.
 - [x] **src/common/logger.ts**: Basic Winston logger setup.
+- [x] **src/container.ts**: DI Container setup.
 
-### 3. Domain Layer (Skeleton)
+### 3. Domain Layer
 
-- [x] **src/domain/entities/post.entity.ts**: `Post` entity defined.
-- [x] **src/domain/repositories/post.repository.interface.ts**: `PostRepositoryInterface` defined.
+- [x] **Entities**: `Post`, `Category`, `Tag`, `Comment`, `Like`, `Bookmark`.
+- [x] **Interfaces**: Repository interfaces for all entities.
 
-### 4. Infrastructure Layer (Skeleton)
+### 4. Infrastructure Layer
 
-- [x] **src/infrastructure/database/prisma.service.ts**: Singleton `PrismaService`.
-- [x] **src/infrastructure/repositories/post.repository.ts**: `PostRepository` implementation.
+- [x] **src/infrastructure/database/prisma.service.ts**: Singleton `PrismaService` using `@cvscharan/blogs-db`.
+- [x] **Repositories**: Implemented `PostRepository`, `CategoryRepository`, `TagRepository`, `CommentRepository`, `ReactionRepository` with Prisma.
 
-### 5. Application Layer (Skeleton)
+### 5. Application Layer
 
-- [x] **src/application/services/post.service.ts**: `PostService` skeleton.
+- [x] **DTOs**: Created DTOs for all create/update operations.
+- [x] **Services**: Implemented `PostService`, `CategoryService`, `TagService`, `CommentService`, `ReactionService` with full CRUD logic.
 
-### 6. Presentation Layer (Skeleton)
+### 6. Presentation Layer
 
-- [x] **src/presentation/controllers/post.controller.ts**: `PostController` skeleton.
-- [x] **src/presentation/routes/post.routes.ts**: `postRoutes` defined.
+- [x] **Controllers**: Implemented `PostController`, `CategoryController`, `TagController`, `CommentController`, `ReactionController`.
+- [x] **Routes**: Defined routes for `/posts`, `/categories`, `/tags`, `/comments`, `/reactions`.
+- [x] **Swagger UI**: Integrated at `/api-docs`.
 
 ### 7. Verification
 
 - [x] **Automated Tests**: Health check test (`tests/health.test.ts`) created and passing.
 - [x] **Build**: `npm run build` executes successfully.
 - [x] **Lint**: `npm run lint` executes with no errors.
+- [x] **Git**: Repository initialized, `node_modules` ignored, and pushed to remote.
+- [x] **Docker**: Dockerfile and .dockerignore created.
+- [x] **CI/CD**: GitHub Actions workflow (`.github/workflows/ci.yml`) created.
 
 ## Next Steps
 
-1.  **Business Logic**: Implement actual logic in `PostService`.
-2.  **Database Integration**: Connect `PostRepository` to the real database using `PrismaService`.
-3.  **Testing**: Add unit and integration tests for new features.
+1.  **Testing**: Add comprehensive unit and integration tests for all new services and controllers.
+2.  **Authentication**: Integrate with `blogs-auth` for user verification.
+3.  **Media**: Integrate with `blogs-media` for image uploads.

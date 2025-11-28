@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  blogs-api:
+    build:
+      context: .
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
